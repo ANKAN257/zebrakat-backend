@@ -98,35 +98,27 @@ router.get("/userdata",authenticateToken, async (req, res) => {
   
 
 
-router.put("/update-intro", authenticateToken, checkAdminMiddleWare, async (req, res) => {
+router.post("/update-intro", authenticateToken, checkAdminMiddleWare, async (req, res) => {
   try {
     console.log("req.body::: ", req.body);
 
     const { welcomeText, firstName, lastName, description } = req.body;
-    console.log("first Name:", firstName);
 
     // Validate all fields
     if (!welcomeText || !firstName || !lastName || !description) {
       return res.status(400).send({ message: "All fields are required." });
     }
 
-    // Count the number of documents in the IntroHome collection
+    // Check the count of documents in the collection
     const introCount = await IntroHome.countDocuments();
     console.log("introCount:", introCount);
 
-    if (introCount <=1)  {
-      
-       console.log("firstName kaha hai :",firstName);
-       
-      const introDocument = await IntroHome.findOne({firstName:firstName}); // Replace with actual ID
-      console.log("introDocument : ",introDocument);
-      
+    let introDocument = await IntroHome.findOne({ firstName });
 
-      if (!introDocument) {
-        return res.status(404).send({ message: "Intro document not found." });
-      }
+    if (introDocument&&introCount===1) {
+      console.log("Document found for update:", introDocument);
 
-      // Update the document if found
+      // Update the document
       introDocument.welcomeText = welcomeText;
       introDocument.firstName = firstName;
       introDocument.lastName = lastName;
@@ -134,18 +126,39 @@ router.put("/update-intro", authenticateToken, checkAdminMiddleWare, async (req,
 
       await introDocument.save();
 
-      res.status(200).send({
+      return res.status(200).send({
         data: introDocument,
         success: true,
         message: "Intro document updated successfully",
-        introCount,  // Send the count of documents
+        introCount,
+      });
+    } else if(introCount==0){
+      console.log("No document found; creating a new one");
+
+      // Create a new document if not found
+      introDocument = new IntroHome({
+        welcomeText,
+        firstName,
+        lastName,
+        description,
+      });
+
+      await introDocument.save();
+
+      return res.status(201).send({
+        data: introDocument,
+        success: true,
+        message: "Intro document created successfully",
+        introCount,
       });
     }
-
+    return res.status(200).send({data:introDocument,success:true,message:"more than one data present so you can neither create or update",introCount})
+ 
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 });
+
 
 
 
