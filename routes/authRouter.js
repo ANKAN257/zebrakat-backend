@@ -18,7 +18,7 @@ const User=require('../models/userModel');
 router.post('/register', async (req, res, next) => {
     try {
         const {  password, email ,username } = req.body;
-        // console.log(req.body);
+        console.log(req.body);
 
         // Check if all fields are provided
         if ( !password || !email  || !username ) {
