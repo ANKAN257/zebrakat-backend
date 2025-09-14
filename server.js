@@ -10,13 +10,14 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true'); // If you need to include cookies in cross-origin requests
-  if (req.method === 'OPTIONS') {
+  
+    if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
 
     next();
   });
-  // app.use(cors());
+
 
 require("dotenv").config()
 
